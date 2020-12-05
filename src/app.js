@@ -4,8 +4,9 @@ const hbs = require('hbs')
 
 const geocode = require('./utils/geocode')
 const forecast = require('./utils/forecast')
-
 const app = express()
+
+const name = 'Sang Nguyen'
 
 // Define paths for Express config
 const publicDirectoryPath = path.join(__dirname, '../public')
@@ -23,14 +24,14 @@ app.use(express.static(publicDirectoryPath))
 app.get('', (req, res) => {
     res.render('index', {
         title: 'Weather',
-        name: 'Andrew Mead'
+        name
     })
 })
 
 app.get('/about', (req, res) => {
     res.render('about', {
         title: 'About Me',
-        name: 'Andrew Mead'
+        name
     })
 })
 
@@ -38,7 +39,7 @@ app.get('/help', (req, res) => {
     res.render('help', {
         helpText: 'This is some helpful text.',
         title: 'Help',
-        name: 'Andrew Mead'
+        name
     })
 })
 
@@ -49,7 +50,7 @@ app.get('/weather', (req, res) => {
             error: 'You must provide an address'
         })
     }
-    geocode(address,(error, {latitude, longitude, location}) => {
+    geocode(address,(error, {latitude, longitude, location} = {}) => {
         if(error) return console.log(error)
         forecast(latitude, longitude, (error, forecastData) => {
             if(error) return console.log(error)
@@ -64,7 +65,11 @@ app.get('/weather', (req, res) => {
 })
 
 app.get('/products', (req, res) => {
-    console.log(req.query.name)
+    if(!req.query.search) {
+        return res.send({
+            error: 'You must provide a search term'
+        })
+    }
     res.send({
         products: []
     })
@@ -73,7 +78,7 @@ app.get('/products', (req, res) => {
 app.get('/help/*', (req, res) => {
     res.render('404', {
         title: '404',
-        name: 'Andrew Mead',
+        name,
         errorMessage: 'Help article not found.'
     })
 })
@@ -81,7 +86,7 @@ app.get('/help/*', (req, res) => {
 app.get('*', (req, res) => {
     res.render('404', {
         title: '404',
-        name: 'Andrew Mead',
+        name,
         errorMessage: 'Page not found.'
     })
 })
